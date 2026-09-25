@@ -180,8 +180,7 @@ html {
   position: fixed;
   inset: 0;
   z-index: 300;
-  pointer-events: auto;
-  cursor: pointer;
+  pointer-events: none;
   perspective: 1600px;
 }
 
@@ -196,29 +195,28 @@ html {
   width: 100vw;
   height: 100vh;
   background: radial-gradient(
-      circle at 50% 50%,
-      #7a1018 0%,
-      #5a0c12 45%,
-      #3a0509 100%
+      circle at 50% 45%,
+      #8a1017 0%,
+      #5c0c11 45%,
+      #33060a 78%,
+      #220408 100%
     );
   transition:
     transform 2.4s cubic-bezier(0.7, 0, 0.3, 1),
     filter 2.4s ease;
   will-change: transform;
   backface-visibility: hidden;
-  box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.5);
+  box-shadow: inset 0 0 90px rgba(0, 0, 0, 0.55);
 }
 
 .door-half::after {
   content: "";
   position: absolute;
   inset: 0;
-  background-image: repeating-linear-gradient(
-    0deg,
-    rgba(255, 210, 120, 0.05) 0px,
-    rgba(255, 210, 120, 0.05) 1px,
-    transparent 1px,
-    transparent 42px
+  background: radial-gradient(
+    circle at 50% 45%,
+    rgba(0, 0, 0, 0) 55%,
+    rgba(0, 0, 0, 0.35) 100%
   );
 }
 
@@ -242,6 +240,27 @@ html {
   filter: brightness(0.45);
 }
 
+.door-seam {
+  position: fixed;
+  top: 0;
+  left: 50%;
+  width: 4px;
+  height: 100vh;
+  transform: translateX(-50%);
+  background: #f0b03c;
+  box-shadow:
+    0 0 12px rgba(240, 176, 60, 0.85),
+    0 0 28px rgba(240, 176, 60, 0.5);
+  z-index: 2;
+  transition:
+    opacity 0.6s ease 0.2s,
+    transform 0.9s cubic-bezier(0.65, 0, 0.35, 1) 0.2s;
+}
+
+.opening-door.opened .door-seam {
+  opacity: 0;
+}
+
 .door-ornament {
   position: fixed;
   top: 50%;
@@ -253,7 +272,7 @@ html {
   transition:
     opacity 1s ease 0.2s,
     transform 1.6s cubic-bezier(0.65, 0, 0.35, 1) 0.2s;
-  filter: drop-shadow(0 0 18px rgba(255, 200, 100, 0.45));
+  filter: drop-shadow(0 0 18px rgba(240, 176, 60, 0.5));
 }
 
 .opening-door.opened .door-ornament {
@@ -261,31 +280,57 @@ html {
   transform: translate(-50%, -50%) scale(0.7);
 }
 
-.door-lantern {
+.door-lantern-hit {
   position: fixed;
   top: 50%;
   left: 50%;
-  width: min(20vmin, 130px);
-  height: auto;
+  width: min(34vmin, 220px);
+  height: min(34vmin, 220px);
   transform: translate(-50%, -50%);
-  z-index: 3;
-  transition:
-    transform 1.8s cubic-bezier(0.22, 0.75, 0.2, 1) 0.35s,
-    opacity 1s ease 1s;
-  filter: drop-shadow(0 0 14px rgba(255, 120, 60, 0.65));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 4;
+  pointer-events: auto;
+  cursor: pointer;
 }
 
-.opening-door.opened .door-lantern {
-  transform: translate(-50%, -220vh);
+.door-lantern-hit .door-lantern {
+  width: min(20vmin, 130px);
+  height: auto;
+  transition:
+    transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1),
+    opacity 0.4s ease;
+  filter: drop-shadow(0 0 14px rgba(255, 120, 60, 0.65));
+  animation: lanternPulse 2s ease-in-out infinite;
+}
+
+.door-lantern-hit.tapped {
+  pointer-events: none;
+}
+
+.door-lantern-hit.tapped .door-lantern {
+  transform: scale(0.15);
   opacity: 0;
+  animation: none;
+}
+
+@keyframes lanternPulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.06);
+  }
 }
 
 .door-hint {
   position: fixed;
-  top: calc(50% + min(38vmin, 260px));
+  top: calc(50% + min(37vmin, 250px));
   left: 50%;
   transform: translateX(-50%);
-  z-index: 4;
+  z-index: 3;
   color: #ffd98a;
   letter-spacing: 4px;
   font-size: 13px;
