@@ -32,7 +32,7 @@ renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.25;
 container.appendChild(renderer.domElement);
 renderer.setClearColor(0x000000, 0);
-container.style.background = 'linear-gradient(rgba(0, 0, 20, 0.45), rgba(0, 0, 20, 0.45)), url("./assets/bg.jpg") center / cover no-repeat';
+container.style.background = 'linear-gradient(rgba(0, 0, 10, 0.7), rgba(0, 0, 10, 0.7)), url("./assets/bg.jpg") center / cover no-repeat';
 
 const controls = new THREE.OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
@@ -56,7 +56,7 @@ warmLight.position.set(0, -2, 0);
 scene.add(warmLight);
 
 // đèn tím hồng áp sát tán cây để ánh sáng lan ra rực rỡ hơn
-const treeGlowLight = new THREE.PointLight(0xff6fd8, 2.2, 22);
+const treeGlowLight = new THREE.PointLight(0xff6fd8, 3.2, 26);
 treeGlowLight.position.set(0, 8, 3);
 scene.add(treeGlowLight);
 
@@ -149,7 +149,7 @@ moonGlow.scale.set(MOON_RADIUS * 4.5, MOON_RADIUS * 4.5, 1);
 islandGroup.add(moonGlow);
 
 // TREE TRUNK & BRANCHES
-const TREE_SCALE = 0.6; // thu nhỏ cây cho vừa mặt trăng nhỏ
+const TREE_SCALE = 0.85; // cây to hơn, nổi bật hơn trên mặt trăng
 const treeGroup = new THREE.Group();
 treeGroup.position.set(0, MOON_RADIUS - 0.2, 0); // gốc cây cắm trên đỉnh mặt trăng
 treeGroup.scale.setScalar(TREE_SCALE);
@@ -171,18 +171,28 @@ const trunkGeo = new THREE.TubeGeometry(trunkCurve, 32, 0.28, 8, false);
 const trunkMesh = new THREE.Mesh(trunkGeo, trunkMat);
 treeGroup.add(trunkMesh);
 
+// hướng cành theo đường viền hình trái tim (nhìn từ trên xuống sẽ thấy rõ)
+function heartDir(t) {
+  const hx = 16 * Math.pow(Math.sin(t), 3);
+  const hz =
+    -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
+  const mag = Math.hypot(hx, hz) || 1;
+  return { x: hx / mag, z: hz / mag };
+}
+
 const branchClusters = [];
-const mainBranchCount = 12;
+const mainBranchCount = 18;
 for (let i = 0; i < mainBranchCount; i++) {
-  const angle = (i / mainBranchCount) * Math.PI * 2 + Math.random() * 0.3;
+  const t = (i / mainBranchCount) * Math.PI * 2 + (Math.random() - 0.5) * 0.15;
+  const dir = heartDir(t);
   const h = 3.0 + Math.random() * 4.0;
   const startP = trunkCurve.getPointAt(h / 7.5);
-  const len = 3.0 + Math.random() * 2.2;
+  const len = 3.6 + Math.random() * 2.4;
 
   const endP = new THREE.Vector3(
-    startP.x + Math.cos(angle) * len,
+    startP.x + dir.x * len,
     startP.y + 0.8 + Math.random() * 1.0,
-    startP.z + Math.sin(angle) * len,
+    startP.z + dir.z * len,
   );
 
   const midP = new THREE.Vector3().addVectors(startP, endP).multiplyScalar(0.5);
@@ -193,11 +203,11 @@ for (let i = 0; i < mainBranchCount; i++) {
   const bMesh = new THREE.Mesh(bGeo, trunkMat);
   treeGroup.add(bMesh);
 
-  branchClusters.push({ center: endP, radius: 3.2 + Math.random() * 1.0 });
+  branchClusters.push({ center: endP, radius: 3.6 + Math.random() * 1.2 });
 }
 
 // HỆ THỐNG TÁN LÁ
-const particleCount = isMobile ? 22000 : 38000;
+const particleCount = isMobile ? 28000 : 46000;
 const blossomGeo = new THREE.BufferGeometry();
 const blossomPos = new Float32Array(particleCount * 3);
 const blossomColors = new Float32Array(particleCount * 3);
@@ -208,9 +218,9 @@ const colorPaleRose = new THREE.Color(0xff9adf);
 const colorSoftWhite = new THREE.Color(0xfff2fc);
 
 const clusters = [
-  { center: new THREE.Vector3(0, 9.5, 0), radius: 6.2 },
-  { center: new THREE.Vector3(0, 7.5, 0), radius: 7.0 },
-  { center: new THREE.Vector3(0, 5.5, 0), radius: 6.0 },
+  { center: new THREE.Vector3(0, 9.2, 0), radius: 4.4 },
+  { center: new THREE.Vector3(0, 7.4, 0), radius: 4.8 },
+  { center: new THREE.Vector3(0, 5.6, 0), radius: 4.0 },
   ...branchClusters,
 ];
 
@@ -293,8 +303,9 @@ const treeGlowMat = new THREE.SpriteMaterial({
   blending: THREE.AdditiveBlending,
   depthWrite: false,
 });
+treeGlowMat.opacity = 0.68;
 const treeGlow = new THREE.Sprite(treeGlowMat);
-treeGlow.scale.set(16 * TREE_SCALE, 16 * TREE_SCALE, 1);
+treeGlow.scale.set(21 * TREE_SCALE, 21 * TREE_SCALE, 1);
 treeGlow.position.set(0, 7.5, 0);
 treeGroup.add(treeGlow);
 
@@ -490,7 +501,7 @@ function createLanternMesh() {
   const bodyMat = new THREE.MeshStandardMaterial({
     map: lanternTex,
     emissive: 0xff8800,
-    emissiveIntensity: 0.85,
+    emissiveIntensity: 1.05,
     roughness: 0.25,
     metalness: 0.1,
     transparent: true,
@@ -543,16 +554,29 @@ function createLanternMesh() {
     group.add(new THREE.Line(geo, tasselMat));
   });
 
-  const spriteMat = new THREE.SpriteMaterial({
+  const glowCoreMat = new THREE.SpriteMaterial({
+    map: createParticleTexture(),
+    color: 0xffcc55,
+    transparent: true,
+    opacity: 0.9,
+    blending: THREE.AdditiveBlending,
+    depthWrite: false,
+  });
+  const glowCore = new THREE.Sprite(glowCoreMat);
+  glowCore.scale.set(2.6, 2.6, 1);
+  group.add(glowCore);
+
+  const glowOuterMat = new THREE.SpriteMaterial({
     map: createParticleTexture(),
     color: 0xffaa00,
     transparent: true,
-    opacity: 0.7,
+    opacity: 0.55,
     blending: THREE.AdditiveBlending,
+    depthWrite: false,
   });
-  const glow = new THREE.Sprite(spriteMat);
-  glow.scale.set(3.2, 3.2, 1);
-  group.add(glow);
+  const glowOuter = new THREE.Sprite(glowOuterMat);
+  glowOuter.scale.set(5.2, 5.2, 1);
+  group.add(glowOuter);
 
   const hitGeo = new THREE.SphereGeometry(1.6, 8, 8);
   const hitMat = new THREE.MeshBasicMaterial({ visible: false });

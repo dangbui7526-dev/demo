@@ -284,8 +284,8 @@ html {
   position: fixed;
   top: 50%;
   left: 50%;
-  width: min(34vmin, 220px);
-  height: min(34vmin, 220px);
+  width: min(50vmin, 340px);
+  height: min(50vmin, 340px);
   transform: translate(-50%, -50%);
   display: flex;
   align-items: center;
@@ -317,12 +317,22 @@ html {
 }
 
 .door-lantern-hit .door-lantern {
-  width: min(20vmin, 130px);
+  width: min(46vmin, 320px);
   height: auto;
+  -webkit-mask-image: radial-gradient(
+    ellipse 60% 60% at 50% 50%,
+    #000 55%,
+    transparent 100%
+  );
+  mask-image: radial-gradient(
+    ellipse 60% 60% at 50% 50%,
+    #000 55%,
+    transparent 100%
+  );
   transition:
     transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1),
     opacity 0.4s ease;
-  filter: drop-shadow(0 0 14px rgba(255, 120, 60, 0.65));
+  filter: drop-shadow(0 0 20px rgba(255, 140, 60, 0.6));
   animation: lanternPulse 2s ease-in-out infinite;
 }
 
