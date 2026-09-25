@@ -194,9 +194,13 @@ html {
   left: 0;
   width: 100vw;
   height: 100vh;
-  background:
-    radial-gradient(circle at 50% 48%, rgba(255, 54, 42, 0.10), transparent 28%),
-    radial-gradient(circle at 50% 45%, #9f0c14 0%, #74080e 48%, #4a0509 78%, #2b0307 100%);
+  background: radial-gradient(
+      circle at 50% 45%,
+      #8a1017 0%,
+      #5c0c11 45%,
+      #33060a 78%,
+      #220408 100%
+    );
   transition:
     transform 2.4s cubic-bezier(0.7, 0, 0.3, 1),
     filter 2.4s ease;
@@ -261,14 +265,14 @@ html {
   position: fixed;
   top: 50%;
   left: 50%;
-  width: min(72vmin, 500px);
-  height: min(72vmin, 500px);
+  width: min(70vmin, 480px);
+  height: min(70vmin, 480px);
   transform: translate(-50%, -50%);
   z-index: 2;
   transition:
     opacity 1s ease 0.2s,
     transform 1.6s cubic-bezier(0.65, 0, 0.35, 1) 0.2s;
-  filter: drop-shadow(0 0 12px rgba(240, 176, 60, 0.55)) drop-shadow(0 0 28px rgba(240, 176, 60, 0.2));
+  filter: drop-shadow(0 0 18px rgba(240, 176, 60, 0.5));
 }
 
 .opening-door.opened .door-ornament {
@@ -281,154 +285,90 @@ html {
   top: 50%;
   left: 50%;
   width: 150px;
-  height: 155px;
+  height: 190px;
   transform: translate(-50%, -50%);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 8;
+  z-index: 4;
   pointer-events: auto;
   cursor: pointer;
 }
 
 .door-lantern-glow {
   position: absolute;
-  width: 180px;
-  height: 180px;
+  width: 230px;
+  height: 230px;
   border-radius: 50%;
   background: radial-gradient(
     circle,
-    rgba(255, 190, 75, 0.48) 0%,
-    rgba(255, 120, 35, 0.25) 34%,
-    rgba(255, 80, 20, 0) 72%
+    rgba(255, 190, 60, 0.72) 0%,
+    rgba(255, 120, 25, 0.38) 28%,
+    rgba(255, 70, 10, 0.16) 48%,
+    transparent 72%
   );
-  filter: blur(4px);
-  pointer-events: none;
+  filter: blur(7px);
   animation: lanternGlow 2s ease-in-out infinite;
+  pointer-events: none;
 }
 
-/* Lồng đèn đỏ ở chính giữa, dựng bằng CSS nên không phụ thuộc file ảnh */
-.door-lantern-hit .door-lantern {
+.door-lantern {
   position: relative;
-  width: 72px;
-  height: 82px;
+  width: 105px;
+  height: 135px;
   display: block;
-  filter: drop-shadow(0 0 10px rgba(255, 105, 35, 0.8));
-  animation: lanternFloat 2s ease-in-out infinite;
-}
-
-.lantern-hook {
-  position: absolute;
-  left: 50%;
-  top: 0;
-  width: 8px;
-  height: 12px;
-  transform: translateX(-50%);
-  border: 2px solid #d7a447;
-  border-bottom: 0;
-  border-radius: 8px 8px 0 0;
-}
-
-.lantern-cap {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 47px;
-  height: 8px;
-  border-radius: 50%;
-  background: linear-gradient(#f3c25a, #9c641d);
-  border: 1px solid #7c4c13;
-  z-index: 3;
-}
-
-.lantern-cap-top { top: 10px; }
-.lantern-cap-bottom { top: 64px; }
-
-.lantern-body {
-  position: absolute;
-  left: 50%;
-  top: 15px;
-  width: 66px;
-  height: 54px;
-  transform: translateX(-50%);
-  border-radius: 48% 48% 45% 45%;
-  background:
-    radial-gradient(circle at 35% 30%, rgba(255, 105, 80, 0.75), transparent 25%),
-    linear-gradient(90deg, #8f0914 0%, #ed2533 20%, #c90e20 48%, #f22a35 72%, #7e0711 100%);
-  border: 2px solid #72050d;
-  box-shadow:
-    inset 0 0 9px rgba(255, 120, 70, 0.45),
-    0 2px 8px rgba(70, 0, 0, 0.55);
-  overflow: hidden;
+  overflow: visible;
+  filter:
+    drop-shadow(0 0 8px rgba(255, 105, 35, .8))
+    drop-shadow(0 8px 10px rgba(60, 0, 0, .55));
+  animation: lanternFloat 2.2s ease-in-out infinite;
+  transform-origin: 50% 50%;
   z-index: 2;
-}
-
-.lantern-body::before,
-.lantern-body::after {
-  content: "";
-  position: absolute;
-  top: -3px;
-  bottom: -3px;
-  width: 5px;
-  border-radius: 50%;
-  border-left: 2px solid rgba(255, 174, 105, 0.72);
-  border-right: 1px solid rgba(95, 0, 10, 0.75);
-}
-
-.lantern-body::before { left: 17px; }
-.lantern-body::after { right: 17px; }
-
-.lantern-body i {
-  position: absolute;
-  top: -2px;
-  bottom: -2px;
-  width: 2px;
-  background: rgba(255, 170, 95, 0.55);
-  border-radius: 50%;
-  z-index: 3;
-}
-.lantern-body i:nth-child(1) { left: 29%; }
-.lantern-body i:nth-child(2) { left: 42%; }
-.lantern-body i:nth-child(3) { left: 50%; width: 3px; background: rgba(255, 206, 115, 0.7); }
-.lantern-body i:nth-child(4) { left: 58%; }
-.lantern-body i:nth-child(5) { left: 71%; }
-
-.lantern-tassel {
-  position: absolute;
-  left: 50%;
-  top: 72px;
-  width: 5px;
-  height: 9px;
-  transform: translateX(-50%);
-  background: #e2a42e;
-  box-shadow: 0 6px 0 -1px #e2a42e, 0 10px 0 -1px #c77d1e;
-  z-index: 4;
 }
 
 .door-lantern-hit.tapped {
   pointer-events: none;
 }
 
-.door-lantern-hit.tapped .door-lantern-glow {
-  opacity: 0;
-  animation: none;
+.door-lantern-hit.tapped .door-lantern {
+  animation: lanternDisappear .45s cubic-bezier(.34,1.56,.64,1) forwards;
 }
 
-.door-lantern-hit.tapped .door-lantern {
-  transform: scale(0.15);
-  opacity: 0;
+.door-lantern-hit.tapped .door-lantern-glow {
   animation: none;
-  transition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.4s ease;
+  opacity: 0;
+  transition: opacity .35s ease;
 }
 
 @keyframes lanternFloat {
-  0%, 100% { transform: translateY(0) scale(1); }
-  50% { transform: translateY(-2px) scale(1.035); }
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-4px) rotate(-0.8deg);
+  }
 }
 
 @keyframes lanternGlow {
-  0%, 100% { opacity: 0.72; transform: scale(0.96); }
-  50% { opacity: 1; transform: scale(1.06); }
+  0%, 100% {
+    opacity: .65;
+    transform: scale(.94);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.06);
+  }
+}
+
+@keyframes lanternDisappear {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(.15) translateY(-10px);
+  }
 }
 
 .door-hint {
