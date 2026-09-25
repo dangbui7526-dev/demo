@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Tặng Cậu(. ❛ ᴗ ❛.) </title>
+
+    <!-- Google Fonts & FontAwesome -->
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Quicksand:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="./assets/css.css">
+</head>
+<body>
+
+    <div id="webgl-container"></div>
+
+    <!-- Màn hình mở cửa -->
+    <div class="opening-door" id="openingDoor">
+        <div class="door-half door-left"></div>
+        <div class="door-half door-right"></div>
+        <svg class="door-ornament" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="150" cy="150" r="128" fill="none" stroke="#ffd98a" stroke-width="5"/>
+            <circle cx="150" cy="150" r="118" fill="none" stroke="#ffd98a" stroke-width="1.5" opacity="0.6"/>
+            <line x1="150" y1="22" x2="150" y2="278" stroke="#ffd98a" stroke-width="4"/>
+            <line x1="22" y1="150" x2="278" y2="150" stroke="#ffd98a" stroke-width="4"/>
+            <rect x="105" y="60" width="90" height="40" fill="none" stroke="#ffd98a" stroke-width="3"/>
+            <rect x="105" y="200" width="90" height="40" fill="none" stroke="#ffd98a" stroke-width="3"/>
+            <rect x="60" y="105" width="40" height="90" fill="none" stroke="#ffd98a" stroke-width="3"/>
+            <rect x="200" y="105" width="40" height="90" fill="none" stroke="#ffd98a" stroke-width="3"/>
+            <!-- lồng đèn treo giữa -->
+            <line x1="150" y1="118" x2="150" y2="138" stroke="#ffd98a" stroke-width="2"/>
+            <rect x="128" y="138" width="44" height="14" rx="3" fill="#ffd98a"/>
+            <path d="M132 152 Q150 190 168 152 Z" fill="#e23b34" stroke="#ffd98a" stroke-width="2"/>
+            <rect x="128" y="186" width="44" height="14" rx="3" fill="#ffd98a"/>
+            <line x1="150" y1="200" x2="150" y2="214" stroke="#ffd98a" stroke-width="2"/>
+        </svg>
+        <div class="door-hint">CHẠM ĐỂ MỞ</div>
+    </div>
+
+    <div class="top-bar">
+        <button class="icon-btn" id="audio-btn" title="Bật/Tắt Nhạc"><i class="fas fa-music"></i></button>
+        <button class="icon-btn" id="reset-cam-btn" title="Góc nhìn ban đầu"><i class="fas fa-compress-arrows-alt"></i></button>
+    </div>
+
+    <div class="click-hint">Chạm vào lồng đèn nhé</div>
+
+    <div class="wish-modal" id="wishModal">
+        <div class="wish-card">
+            <span class="corner tl"></span>
+            <span class="corner tr"></span>
+            <span class="corner bl"></span>
+            <span class="corner br"></span>
+            <button class="close-btn" id="closeWishBtn" aria-label="Đóng"><i class="fas fa-times"></i></button>
+            <h3 id="wishTitle">❁ Thông Điệp Trăng Rằm ❁</h3>
+            
+            <div class="wish-image-container">
+                <img id="wishImage" src="" alt="Hình ảnh Trung Thu">
+            </div>
+
+            <p id="wishText">"Chúc cậu một đêm Trung Thu ấm áp, bình an và trọn vẹn bên những người thương yêu."</p>
+            <div class="tag">✦ Trung Thu An Lành ✦</div>
+        </div>
+    </div>
+
+    <audio id="bgm" loop src="./assets/1.mp3"></audio>
+    
+    
+    <!-- Three.js & OrbitControls -->
+    <script src="./assets/three.min.js"></script>
+    <script src="./assets/OrbitControls.js"></script>
+    <script src="./assets/script.js"></script>
+    <script>
+        (function () {
+            const door = document.getElementById("openingDoor");
+            const bgm = document.getElementById("bgm");
+            const audioBtn = document.getElementById("audio-btn");
+
+            function openDoor() {
+                if (door.classList.contains("opened")) return;
+                door.classList.add("opened");
+                bgm.play()
+                    .then(() => {
+                        audioBtn.innerHTML = '<i class="fas fa-volume-up"></i>';
+                    })
+                    .catch(() => {
+                        audioBtn.innerHTML = '<i class="fas fa-music" style="opacity:0.5;"></i>';
+                    });
+                setTimeout(() => door.remove(), 1300);
+            }
+
+            door.addEventListener("click", openDoor, { once: true });
+        })();
+    </script>
+</body>
+</html>
