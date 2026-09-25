@@ -64,94 +64,56 @@ scene.add(treeGlowLight);
 const islandGroup = new THREE.Group();
 scene.add(islandGroup);
 
-// MẶT TRĂNG NHỎ (thay cho đảo bay)
+// HÒN ĐẢO BAY (đá thấp góc cạnh, cây mọc trên đỉnh)
 islandGroup.position.set(0, 5, 0);
-const MOON_RADIUS = 4;
+const MOON_RADIUS = 4; // giữ tên & bán kính cũ để cây, thỏ không phải đổi logic
 
-function createMoonTexture() {
-  const w = 1024;
-  const h = 512;
-  const canvas = document.createElement("canvas");
-  canvas.width = w;
-  canvas.height = h;
-  const ctx = canvas.getContext("2d");
-  ctx.fillStyle = "#e9e5d3";
-  ctx.fillRect(0, 0, w, h);
-
-  // các vùng tối lớn
-  for (let i = 0; i < 14; i++) {
-    const x = Math.random() * w;
-    const y = h * 0.2 + Math.random() * h * 0.6;
-    const r = 40 + Math.random() * 90;
-    const g = ctx.createRadialGradient(x, y, 0, x, y, r);
-    g.addColorStop(0, "rgba(150,145,130,0.55)");
-    g.addColorStop(1, "rgba(150,145,130,0)");
-    ctx.fillStyle = g;
-    ctx.beginPath();
-    ctx.arc(x, y, r, 0, Math.PI * 2);
-    ctx.fill();
-  }
-
-  // các hố nhỏ
-  for (let i = 0; i < 90; i++) {
-    const x = Math.random() * w;
-    const y = h * 0.15 + Math.random() * h * 0.7;
-    const r = 4 + Math.random() * 16;
-    ctx.beginPath();
-    ctx.arc(x, y, r, 0, Math.PI * 2);
-    ctx.fillStyle = "rgba(120,115,100,0.35)";
-    ctx.fill();
-    ctx.lineWidth = 1.5;
-    ctx.strokeStyle = "rgba(255,255,245,0.35)";
-    ctx.stroke();
-  }
-  return new THREE.CanvasTexture(canvas);
+const islandGeo = new THREE.IcosahedronGeometry(MOON_RADIUS, 1);
+const islandPos = islandGeo.attributes.position;
+const ISLAND_TOP_SQUASH = 0.5; // độ bẹt của mặt trên đảo (thỏ & cây dùng chung số này)
+for (let i = 0; i < islandPos.count; i++) {
+  const vx = islandPos.getX(i);
+  const vy = islandPos.getY(i);
+  const vz = islandPos.getZ(i);
+  const jitter = 1 + (Math.random() - 0.5) * 0.22;
+  // bẹt phần trên để cây đứng vững, vuốt thon nhọn phần dưới cho giống đá bay
+  const ny = vy >= 0 ? vy * ISLAND_TOP_SQUASH : vy * 1.6;
+  islandPos.setXYZ(i, vx * jitter, ny * jitter, vz * jitter);
 }
+islandGeo.computeVertexNormals();
 
-const moonTex = createMoonTexture();
-const moonMat = new THREE.MeshStandardMaterial({
-  map: moonTex,
-  emissiveMap: moonTex,
-  emissive: new THREE.Color(0xfff1c9),
-  emissiveIntensity: 0.55,
+const islandMat = new THREE.MeshStandardMaterial({
+  color: 0x2a1c14,
   roughness: 0.95,
+  flatShading: true,
 });
-const moonMesh = new THREE.Mesh(
-  new THREE.SphereGeometry(MOON_RADIUS, isMobile ? 32 : 64, isMobile ? 32 : 64),
-  moonMat,
-);
-islandGroup.add(moonMesh);
+const islandMesh = new THREE.Mesh(islandGeo, islandMat);
+islandGroup.add(islandMesh);
 
-// quầng sáng quanh mặt trăng
-function createMoonGlowTexture() {
-  const canvas = document.createElement("canvas");
-  canvas.width = 256;
-  canvas.height = 256;
-  const ctx = canvas.getContext("2d");
-  const g = ctx.createRadialGradient(128, 128, 0, 128, 128, 128);
-  g.addColorStop(0, "rgba(255,244,205,0.9)");
-  g.addColorStop(0.35, "rgba(255,236,180,0.35)");
-  g.addColorStop(1, "rgba(255,236,180,0)");
-  ctx.fillStyle = g;
-  ctx.fillRect(0, 0, 256, 256);
-  return new THREE.CanvasTexture(canvas);
+// vệt cỏ/rêu rải rác trên mặt đảo cho đỡ trơ trọi
+const mossGeo = new THREE.BufferGeometry();
+const mossCount = 160;
+const mossPos = new Float32Array(mossCount * 3);
+for (let i = 0; i < mossCount; i++) {
+  const theta = Math.random() * Math.PI * 2;
+  const r = Math.random() * MOON_RADIUS * 0.85;
+  mossPos[i * 3] = Math.cos(theta) * r;
+  mossPos[i * 3 + 1] = MOON_RADIUS * 0.3 + Math.random() * 0.25;
+  mossPos[i * 3 + 2] = Math.sin(theta) * r;
 }
-const moonGlow = new THREE.Sprite(
-  new THREE.SpriteMaterial({
-    map: createMoonGlowTexture(),
-    transparent: true,
-    opacity: 0.55,
-    blending: THREE.AdditiveBlending,
-    depthWrite: false,
-  }),
-);
-moonGlow.scale.set(MOON_RADIUS * 4.5, MOON_RADIUS * 4.5, 1);
-islandGroup.add(moonGlow);
+mossGeo.setAttribute("position", new THREE.BufferAttribute(mossPos, 3));
+const mossMat = new THREE.PointsMaterial({
+  size: 0.35,
+  color: 0x4c6b32,
+  transparent: true,
+  opacity: 0.55,
+});
+islandGroup.add(new THREE.Points(mossGeo, mossMat));
 
 // TREE TRUNK & BRANCHES
-const TREE_SCALE = 0.85; // cây to hơn, nổi bật hơn trên mặt trăng
+const TREE_SCALE = 0.85; // cây to hơn, nổi bật hơn trên đảo
 const treeGroup = new THREE.Group();
-treeGroup.position.set(0, MOON_RADIUS - 0.2, 0); // gốc cây cắm trên đỉnh mặt trăng
+treeGroup.position.set(0, MOON_RADIUS * 0.5 - 0.1, 0); // gốc cây cắm trên đỉnh đảo
 treeGroup.scale.setScalar(TREE_SCALE);
 islandGroup.add(treeGroup);
 
@@ -407,7 +369,14 @@ function updateRabbits(time) {
 
     rabBasis.makeBasis(rabRight, rabUp, rabFwd);
     r.mesh.quaternion.setFromRotationMatrix(rabBasis);
-    r.mesh.position.copy(rabUp).multiplyScalar(MOON_RADIUS - 0.05 + hop);
+    // mặt trên đảo bị bẹt (ISLAND_TOP_SQUASH), nên nén riêng trục Y khi đặt vị trí
+    // để thỏ đứng đúng trên mặt đá thay vì lơ lửng phía trên
+    const orbitR = MOON_RADIUS - 0.05 + hop;
+    r.mesh.position.set(
+      rabUp.x * orbitR,
+      rabUp.y * orbitR * ISLAND_TOP_SQUASH,
+      rabUp.z * orbitR,
+    );
   });
 }
 
