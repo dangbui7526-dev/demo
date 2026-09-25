@@ -295,6 +295,27 @@ html {
   cursor: pointer;
 }
 
+.door-lantern-glow {
+  position: absolute;
+  inset: -35%;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(255, 190, 110, 0.55) 0%,
+    rgba(255, 140, 60, 0.28) 40%,
+    rgba(255, 140, 60, 0) 72%
+  );
+  filter: blur(3px);
+  pointer-events: none;
+  animation: lanternPulse 2s ease-in-out infinite;
+  transition: opacity 0.4s ease;
+}
+
+.door-lantern-hit.tapped .door-lantern-glow {
+  opacity: 0;
+  animation: none;
+}
+
 .door-lantern-hit .door-lantern {
   width: min(20vmin, 130px);
   height: auto;
