@@ -55,6 +55,11 @@ const warmLight = new THREE.PointLight(0xffaa33, 2.0, 30);
 warmLight.position.set(0, -2, 0);
 scene.add(warmLight);
 
+// đèn tím hồng áp sát tán cây để ánh sáng lan ra rực rỡ hơn
+const treeGlowLight = new THREE.PointLight(0xff6fd8, 2.2, 22);
+treeGlowLight.position.set(0, 8, 3);
+scene.add(treeGlowLight);
+
 // ISLAND
 const islandGroup = new THREE.Group();
 scene.add(islandGroup);
@@ -197,10 +202,10 @@ const blossomGeo = new THREE.BufferGeometry();
 const blossomPos = new Float32Array(particleCount * 3);
 const blossomColors = new Float32Array(particleCount * 3);
 
-const colorDustyPink = new THREE.Color(0xe8a2a8);
-const colorSoftPink = new THREE.Color(0xf0b6bc);
-const colorPaleRose = new THREE.Color(0xf7d1d5);
-const colorSoftWhite = new THREE.Color(0xfdf0f2);
+const colorDustyPink = new THREE.Color(0xb83fc0);
+const colorSoftPink = new THREE.Color(0xff5fb0);
+const colorPaleRose = new THREE.Color(0xff9adf);
+const colorSoftWhite = new THREE.Color(0xfff2fc);
 
 const clusters = [
   { center: new THREE.Vector3(0, 9.5, 0), radius: 6.2 },
@@ -267,17 +272,57 @@ function createParticleTexture() {
 }
 
 const blossomMat = new THREE.PointsMaterial({
-  size: (isMobile ? 0.5 : 0.42) * TREE_SCALE,
+  size: (isMobile ? 0.55 : 0.46) * TREE_SCALE,
   vertexColors: true,
   map: createParticleTexture(),
   transparent: true,
-  opacity: 0.75,
-  blending: THREE.NormalBlending,
+  opacity: 0.9,
+  blending: THREE.AdditiveBlending,
   depthWrite: false,
 });
 
 const blossomParticles = new THREE.Points(blossomGeo, blossomMat);
 treeGroup.add(blossomParticles);
+
+// quầng sáng tím hồng bao quanh tán cây cho rực rỡ hơn
+const treeGlowMat = new THREE.SpriteMaterial({
+  map: createParticleTexture(),
+  color: 0xff6fd8,
+  transparent: true,
+  opacity: 0.55,
+  blending: THREE.AdditiveBlending,
+  depthWrite: false,
+});
+const treeGlow = new THREE.Sprite(treeGlowMat);
+treeGlow.scale.set(16 * TREE_SCALE, 16 * TREE_SCALE, 1);
+treeGlow.position.set(0, 7.5, 0);
+treeGroup.add(treeGlow);
+
+// vài đốm sáng lấp lánh rải trong tán cây
+const sparkleCount = isMobile ? 60 : 110;
+const sparkleGeo = new THREE.BufferGeometry();
+const sparklePos = new Float32Array(sparkleCount * 3);
+for (let i = 0; i < sparkleCount; i++) {
+  const c = clusters[Math.floor(Math.random() * clusters.length)];
+  const r = Math.pow(Math.random(), 0.6) * c.radius;
+  const theta = Math.random() * Math.PI * 2;
+  const phi = Math.acos(2 * Math.random() - 1);
+  sparklePos[i * 3] = c.center.x + r * Math.sin(phi) * Math.cos(theta);
+  sparklePos[i * 3 + 1] = c.center.y + r * Math.sin(phi) * Math.sin(theta) * 0.8;
+  sparklePos[i * 3 + 2] = c.center.z + r * Math.cos(phi);
+}
+sparkleGeo.setAttribute("position", new THREE.BufferAttribute(sparklePos, 3));
+const sparkleMat = new THREE.PointsMaterial({
+  size: 0.5 * TREE_SCALE,
+  color: 0xffffff,
+  map: createParticleTexture(),
+  transparent: true,
+  opacity: 0.95,
+  blending: THREE.AdditiveBlending,
+  depthWrite: false,
+});
+const sparkleParticles = new THREE.Points(sparkleGeo, sparkleMat);
+treeGroup.add(sparkleParticles);
 
 // RABBITS
 function createRabbit() {
@@ -313,8 +358,9 @@ function createRabbit() {
   return group;
 }
 
+const RABBIT_COUNT = 5;
 const rabbits = [];
-for (let i = 0; i < 4; i++) {
+for (let i = 0; i < RABBIT_COUNT; i++) {
   const rabbitMesh = createRabbit();
   islandGroup.add(rabbitMesh);
 
@@ -322,7 +368,7 @@ for (let i = 0; i < 4; i++) {
     mesh: rabbitMesh,
     tilt: 0.5 + Math.random() * 0.45, // góc lệch so với gốc cây (rad): nhỏ = sát gốc
     orbitSpeed: (0.22 + Math.random() * 0.2) * (i % 2 === 0 ? 1 : -1),
-    phase: (i / 4) * Math.PI * 2,
+    phase: (i / RABBIT_COUNT) * Math.PI * 2,
     hopSpeed: 4.5 + Math.random() * 2.0,
     hopHeight: 0.15,
     scale: 0.45 + Math.random() * 0.15,
@@ -439,33 +485,63 @@ const lanternTex = createLanternTexture();
 function createLanternMesh() {
   const group = new THREE.Group();
 
-  const bodyGeo = new THREE.CylinderGeometry(0.6, 0.45, 1.4, 6);
+  // Thân lồng đèn lục giác kiểu kính, có viền vàng nổi bật quanh các cạnh
+  const bodyGeo = new THREE.CylinderGeometry(0.62, 0.62, 1.4, 6);
   const bodyMat = new THREE.MeshStandardMaterial({
     map: lanternTex,
-    emissive: 0xff7700,
-    emissiveIntensity: 0.7,
-    roughness: 0.3,
+    emissive: 0xff8800,
+    emissiveIntensity: 0.85,
+    roughness: 0.25,
+    metalness: 0.1,
+    transparent: true,
+    opacity: 0.92,
   });
   const body = new THREE.Mesh(bodyGeo, bodyMat);
   group.add(body);
 
-  const capGeo = new THREE.CylinderGeometry(0.63, 0.63, 0.1, 6);
+  const edgesMat = new THREE.LineBasicMaterial({ color: 0xffe27a });
+  const edges = new THREE.LineSegments(new THREE.EdgesGeometry(bodyGeo), edgesMat);
+  body.add(edges);
+
+  // nắp vàng trên và dưới
+  const capGeo = new THREE.CylinderGeometry(0.66, 0.66, 0.1, 6);
   const capMat = new THREE.MeshStandardMaterial({
     color: 0xffd700,
-    metalness: 0.5,
+    metalness: 0.6,
+    roughness: 0.3,
   });
   const capTop = new THREE.Mesh(capGeo, capMat);
-  capTop.position.y = 0.7;
+  capTop.position.y = 0.75;
   group.add(capTop);
+  const capBottom = new THREE.Mesh(capGeo, capMat);
+  capBottom.position.y = -0.75;
+  group.add(capBottom);
 
-  const tagGeo = new THREE.PlaneGeometry(0.35, 0.7);
+  // móc treo phía trên
+  const hookGeo = new THREE.CylinderGeometry(0.02, 0.02, 0.3, 6);
+  const hook = new THREE.Mesh(hookGeo, capMat);
+  hook.position.y = 0.9;
+  group.add(hook);
+
+  // tấm vải đỏ rủ xuống bên dưới, kèm 2 sợi tua vàng
+  const tagGeo = new THREE.PlaneGeometry(0.38, 0.55);
   const tagMat = new THREE.MeshBasicMaterial({
     color: 0xd90429,
     side: THREE.DoubleSide,
   });
   const tag = new THREE.Mesh(tagGeo, tagMat);
-  tag.position.set(0, -1.1, 0);
+  tag.position.set(0, -1.05, 0);
   group.add(tag);
+
+  const tasselMat = new THREE.LineBasicMaterial({ color: 0xffd700 });
+  [-0.12, 0.12].forEach((dx) => {
+    const pts = [
+      new THREE.Vector3(dx, -1.32, 0),
+      new THREE.Vector3(dx, -1.55, 0),
+    ];
+    const geo = new THREE.BufferGeometry().setFromPoints(pts);
+    group.add(new THREE.Line(geo, tasselMat));
+  });
 
   const spriteMat = new THREE.SpriteMaterial({
     map: createParticleTexture(),
